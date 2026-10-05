@@ -39,6 +39,7 @@ try{st=JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){}
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(st))}catch(e){}};
 const cur=it=>(st[it.id]&&st[it.id].cur)||it.base,done=it=>!!(st[it.id]&&st[it.id].done);
 const dest=(l,it)=>{let reg=l.regular==='regular'?'Regular':'Negative',rot=l.rotation;
+ if(l.folder==='Assymetric/Asymmetric')reg='Asymmetric '+reg;
  if(it&&it.kind==='known'){const cp=it.curdir.split('/');if(l.regular===it.base.regular)reg=cp[2]||reg;if(l.rotation===it.base.rotation)rot=cp[3]||'0'}
  return `${l.folder}/${reg}${rot!=='0'?'/'+rot:''}`}
 D.kitems.forEach(x=>x.kind='known');D.items.forEach(x=>x.kind='batch');
@@ -88,7 +89,7 @@ exb.onclick=()=>{ex.hidden=!ex.hidden;if(!ex.hidden)tx.value=csv()};
 cp.onclick=()=>{tx.value=csv();tx.select();try{navigator.clipboard.writeText(tx.value)}catch(e){document.execCommand('copy')}};
 dl.onclick=()=>get(new Blob(['\ufeff'+csv()],{type:'text/csv'}),'annotations.csv');
 dz.onclick=()=>{const r=added.filter(done);if(!r.length)return exm.textContent='No confirmed added images.';
- const go=()=>{const z=new JSZip();r.forEach(it=>z.file(it.name,it.file));z.generateAsync({type:'blob'}).then(b=>get(b,'added_images.zip'))};
+ const go=()=>{const z=new JSZip();const used=new Set();r.forEach(it=>{let n=it.name;if(used.has(n))n=it.id+'__'+n;used.add(n);z.file(n,it.file)});z.generateAsync({type:'blob'}).then(b=>get(b,'added_images.zip'))};
  if(window.JSZip)return go();const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';s.onload=go;s.onerror=()=>exm.textContent='Could not load the zip library.';document.head.appendChild(s)};
 draw();
 </script>
